@@ -36,7 +36,7 @@ const srcs         =    {
 function browserSync () {
     browsersync.init ({
         server : {
-            baseDir = dests.site
+            baseDir : dests.site
         },
         port : 3000
     })
