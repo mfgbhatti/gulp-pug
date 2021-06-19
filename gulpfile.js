@@ -16,22 +16,34 @@ const imagemin     = require('gulp-imagemin')
 const plumber      = require('gulp-plumber');
 const uglify       = require('gulp-uglify');
 const rename       = require('gulp-rename');
-const concat       = require('gulp-concat');
 const clean        = require('gulp-clean');
 const changed      = require('gulp-changed');
+const notify       = require('gulp-notify');
     //paths
 const srcs         =    {
-    html    : ['./**.pug'],
-    css     : ['./assets/sass/main.scss'],
-    js      : ['./assets/js/*.js'],
-    img     : ['./assets/img/**']
+    html    : './**.pug',
+    css     : './assets/sass/main.scss',
+    js      : './assets/js/*.js',
+    img     : './assets/img/**'
 };
  const dests = {
-     site   : ['./_site'],
-     css    : ['./_site/assets/css'],
-     js     : ['./_site/assets/js'],
-     img    : ['./_site/assets/img']
- };
+     site   : './_site',
+     css    : './_site/assets/css',
+     js     : './_site/assets/js',
+     img    : './_site/assets/img'
+};
+    // Error Handling
+
+function onError (err) {
+    let errorLine   = (err.line) ? 'Line ' + err.line : '',
+    errorTitle  = (err.plugin) ? 'Error: [ ' + err.plugin + ' ]' : 'Error';
+    notify.logLevel(0);
+    notify({
+        title: errorTitle,
+        message: errorLine
+    }).write(err);
+    this.emit('end');
+};
     //browser Sync
 function browserSync () {
     browsersync.init ({
@@ -41,22 +53,18 @@ function browserSync () {
         port : 3000
     })
 };
-function browserSyncReload (done) {
-    browsersync.reload();
-    done();
-};
     //css
 function css () {
     return src(srcs.css)
-    .pipe(plumber())
-    .pipe(changed(srcs.css))
+    .pipe(plumber({ errorHandler: onError }))
+    .pipe(changed(dests.css))
     .pipe(sass())
     .pipe(prefix({
         overrideBrowserslist: ['last 2 versions'],
         cascade: false
     }))
     .pipe(rename({
-        extname: 'min.css'
+        extname: '.min.css'
     }))
     .pipe(cssnano())
     .pipe(dest(dests.css))
@@ -65,12 +73,11 @@ function css () {
     //javascript
 function js () {
     return src(srcs.js)
-    .pipe(plumber())
-    .pipe(changed(srcs.js))
-    .pipe(concat('bundle.js'))
+    .pipe(plumber({ errorHandler: onError }))
+    .pipe(changed(dests.js))
     .pipe(uglify())
     .pipe(rename({
-        extname : 'min.js'
+        extname : '.min.js'
     }))
     .pipe(dest(dests.js))
     .pipe(browsersync.stream());
@@ -78,7 +85,7 @@ function js () {
     //images
 function img () {
     return src(srcs.img)
-    .pipe(plumber())
+    .pipe(plumber({ errorHandler: onError }))
     .pipe(imagemin([
         imagemin.svgo({
             plugins : [{removeViewBox: true}]
@@ -89,14 +96,15 @@ function img () {
     //clear destination
 function clear () {
     return src(dests.site, {
-        read : false
+        read : false,
+        allowEmpty : true
     })
     .pipe(clean());
 };
     //HTML
 function html () {
     return src(srcs.html)
-    .pipe(plumber())
+    .pipe(plumber({ errorHandler: onError }))
     .pipe(pug({
         doctype : 'html',
         pretty : true
