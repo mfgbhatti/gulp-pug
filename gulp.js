@@ -8,7 +8,7 @@ const
 }                  = require('gulp');
     //plugins
 const browsersync  = require('browser-sync').create();
-const sass         = require('gulp-sass');
+const sass         = require('gulp-dart-sass');
 const cssnano      = require('gulp-cssnano');
 const pug          = require('gulp-pug');
 const prefix       = require('gulp-autoprefixer');
