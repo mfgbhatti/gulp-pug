@@ -22,8 +22,9 @@ const notify       = require('gulp-notify');
     //paths
 const srcs         =    {
     html    : './**.pug',
+    cssDir  : './assets/sass/**',
     css     : './assets/sass/main.scss',
-    js      : './assets/js/*.js',
+    js      : './assets/js/**',
     img     : './assets/img/**'
 };
  const dests = {
@@ -115,12 +116,16 @@ function html () {
 
     //watch
 function watchFiles () {
+    watch(srcs.cssDir, css);
     watch(srcs.html, html);
-    watch(srcs.img, img);
     watch(srcs.js, js);
-    watch(srcs.css, css);
+    watch(srcs.img, img);
+};
+    //build function
+function build () {
+    return series(clear, css, js, img, html);
 };
 
 // main gulp functions
-exports.watch = parallel(watchFiles, browserSync);
+exports.watch = parallel(build, watchFiles, browserSync);
 exports.default = series(clear, parallel(js, css, img, html));
