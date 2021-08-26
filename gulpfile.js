@@ -26,11 +26,11 @@ function onError(err) {
 
 // browser Sync
 function browserSync(done) {
-  browsersync.init({
+  bsync.init({
     server: {
-      baseDir: dests.site,
+      baseDir: options.paths.dist.base,
     },
-    port: 3000,
+    port: options.config.port || 3000,
   });
   done();
 }
