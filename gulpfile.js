@@ -16,6 +16,7 @@ const purgecss = require("gulp-purgecss");
 //paths
 const srcs = {
   html: "./**.pug",
+  includes: "./includes/**.pug",
   cssDir: "./assets/sass/**",
   css: "./assets/sass/main.scss",
   js: "./assets/js/**",
@@ -63,7 +64,7 @@ function css() {
     )
     .pipe(
       purgecss({
-        content: ["./**.{html,pug}"],
+        content: ["./**.{html,pug}", "./includes/**.{html,pug}"],
         defaultExtractor: (content) => {
           const broadMatches = content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [];
           const innerMatches =
@@ -127,7 +128,7 @@ function html() {
 //watch
 function watchFiles() {
   watch(srcs.cssDir, css);
-  watch(srcs.html, html);
+  watch([srcs.html, srcs.includes], html);
   watch(srcs.js, js);
   watch(srcs.img, img);
 }
